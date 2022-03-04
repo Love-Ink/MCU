@@ -1,0 +1,5 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj",
+".\Objects\BSP_ws2812.obj" 
+TO ".\Objects\Demo" 
+PRINT(".\Listings\Demo.m51") RAMSIZE(256) 

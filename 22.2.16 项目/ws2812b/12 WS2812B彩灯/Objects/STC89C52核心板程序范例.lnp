@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\STC89C52RC.obj" 
+TO ".\Objects\STC89C52ºËÐÄ°å³ÌÐò·¶Àý" 
+PRINT(".\Listings\STC89C52ºËÐÄ°å³ÌÐò·¶Àý.m51") RAMSIZE(256) 

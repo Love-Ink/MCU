@@ -1,0 +1,45 @@
+C51 COMPILER V9.60.0.0   AD52                                                              02/28/2022 17:32:37 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE AD52
+OBJECT MODULE PLACED IN .\Objects\AD52.obj
+COMPILER INVOKED BY: C:\Program Files\Keil 5\C51\BIN\C51.EXE AD52.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\
+                    -Listings\AD52.lst) TABS(2) OBJECT(.\Objects\AD52.obj)
+
+line level    source
+
+   1          #include "AD52.h"
+   2          
+   3          void AD_Init()
+   4          {
+   5   1        P1ASF = 0x01;
+   6   1        ADC_CONTR = ADC_POWER|ADC_SPEEDLL|ADC_START|ADC_CH;
+   7   1            
+   8   1        AUXR1 = 0x04;
+   9   1        EADC = 1;
+  10   1      }
+  11          /*  内部AD初始化 
+  12          void interruptADC() interrupt 5 
+  13          {
+  14            unsigned  ADC_num;
+  15            ADC_CONTR &= !ADC_FLAG;
+  16            ADC_num = (ADC_RES<<8)|ADC_RESL;
+  17            
+  18            ADC_Vin = (unsigned int)(((float)ADC_num * 506)/1024);
+  19            ADC_CONTR = ADC_POWER|ADC_SPEEDLL|ADC_START|ADC_CH;
+  20          }
+  21          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     12    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

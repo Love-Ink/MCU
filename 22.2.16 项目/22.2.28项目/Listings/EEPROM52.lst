@@ -1,0 +1,105 @@
+C51 COMPILER V9.60.0.0   EEPROM52                                                          03/03/2022 19:55:24 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE EEPROM52
+OBJECT MODULE PLACED IN .\Objects\EEPROM52.obj
+COMPILER INVOKED BY: C:\Program Files\Keil 5\C51\BIN\C51.EXE EEPROM52.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRIN
+                    -T(.\Listings\EEPROM52.lst) TABS(2) OBJECT(.\Objects\EEPROM52.obj)
+
+line level    source
+
+   1          #include <EEPROM52.h>
+   2          
+   3          void LongToStr(unsigned int num,unsigned char *str)
+   4          {
+   5   1        unsigned char dat[5];
+   6   1        char i;
+   7   1        for(i=0;i<3;i++)
+   8   1        {
+   9   2          dat[i] = num%10;
+  10   2          num /= 10;
+  11   2        }
+  12   1        i--;
+  13   1        for(;i>=0;i--)
+  14   1        {
+  15   2          *str++ = dat[i] + '0';
+  16   2        }
+  17   1        *str = '\0';
+  18   1      }
+  19          
+  20          void IAPIdle(void)
+  21          {
+  22   1        IAP_CONTR = 0;
+  23   1        IAP_CMD = 0;
+  24   1        IAP_TRIG = 0;
+  25   1        IAP_ADDRH = 0x80;
+  26   1        IAP_ADDRL = 0;
+  27   1        IAP_DATA = 0;
+  28   1      }
+  29          
+  30          
+  31          void eeprom_eares(unsigned int addrs)
+  32          {
+  33   1        TR0=0;
+  34   1        IAP_ADDRL = addrs;
+  35   1        IAP_ADDRH = (addrs >> 8);
+  36   1        IAP_CONTR = 0x03;
+  37   1        IAP_CONTR |= 0x80;
+  38   1        IAP_CMD = 0x03;
+  39   1        IAP_TRIG = 0x5A;
+  40   1        IAP_TRIG = 0xA5;
+  41   1        _nop_();
+  42   1        IAPIdle();
+  43   1        TR0=1;
+  44   1      }
+  45          
+  46          unsigned char eeprom_read(unsigned int addrs)
+  47          {
+  48   1        unsigned char dat;
+  49   1        TR0 = 0;
+  50   1        IAP_ADDRL = addrs;
+  51   1        IAP_ADDRH = (addrs >> 8);
+  52   1        IAP_CONTR = 0x03;
+  53   1        IAP_CONTR |= 0x80;
+  54   1        IAP_CMD = 0x01;
+C51 COMPILER V9.60.0.0   EEPROM52                                                          03/03/2022 19:55:24 PAGE 2   
+
+  55   1        IAP_TRIG = 0x5A;
+  56   1        IAP_TRIG = 0xA5;
+  57   1        _nop_();
+  58   1        dat = IAP_DATA;
+  59   1        IAPIdle();
+  60   1        TR0 = 1;
+  61   1        return dat;
+  62   1      }
+  63          
+  64          void eeprom_write(unsigned int addrs,unsigned char dat)
+  65          {
+  66   1        TR0 = 0;
+  67   1        eeprom_eares(addrs);
+  68   1        IAP_DATA = dat;
+  69   1        IAP_ADDRL = addrs;
+  70   1        IAP_ADDRH = addrs >> 8;
+  71   1        IAP_CONTR = 0x03;
+  72   1        IAP_CONTR |= 0x80;
+  73   1        IAP_CMD = 0x02;
+  74   1        IAP_TRIG = 0x5A;
+  75   1        IAP_TRIG = 0xA5;
+  76   1        _nop_();
+  77   1        IAPIdle();
+  78   1        TR0 = 1;
+  79   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    233    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      11
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

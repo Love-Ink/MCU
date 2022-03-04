@@ -1,0 +1,137 @@
+C51 COMPILER V9.60.0.0   STC89C52RC                                                        02/18/2022 16:46:52 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE STC89C52RC
+OBJECT MODULE PLACED IN .\Objects\STC89C52RC.obj
+COMPILER INVOKED BY: C:\Program Files\Keil 5\C51\BIN\C51.EXE STC89C52RC.c ROM(COMPACT) OPTIMIZE(8,SPEED) BROWSE DEBUG OB
+                    -JECTEXTEND PRINT(.\Listings\STC89C52RC.lst) TABS(2) OBJECT(.\Objects\STC89C52RC.obj)
+
+line level    source
+
+   1          //************************************************************************************
+   2          // WS2812B全真彩灯珠自动变色+数码管显示灯珠亮度
+   3          //************************************************************************************
+   4          #include "STC89.H"  //头文件包含
+   5          #include <intrins.h>        //头文件包含
+   6          typedef unsigned char u8;     //重新定义数据类型名
+   7          typedef unsigned short u16;     //重新定义数据类型名
+   8          typedef unsigned long u32;      //重新定义数据类型名  
+   9          #include <HC595.H>          //调用74HC595的底层驱动文件（必须写这里）
+  10          #include <SMG_Ser.H>        //调用数码管的文件（必须写这里）
+  11          #include <WS2812B.H>        
+  12          
+  13          void SMG_Allot()          //数码管的数据分配
+  14          {
+  15   1        static u16 xdata count;     //静态变量    
+  16   1        count++;        
+  17   1        if(count>1000)          //每200次进来执行一次
+  18   1        {
+  19   2          count=0;
+  20   2          SMG_Write_Buffer[0]=WS2812_Write_Buffer[1]/16;  //第1位数码管显示内容
+  21   2          SMG_Write_Buffer[1]=WS2812_Write_Buffer[1]%16;  //第2位数码管显示内容
+  22   2          SMG_Write_Buffer[2]=16;             //第3位数码管显示内容
+  23   2          SMG_Write_Buffer[3]=WS2812_Write_Buffer[2]/16;  //第4位数码管显示内容
+  24   2          SMG_Write_Buffer[4]=WS2812_Write_Buffer[2]%16;  //第5位数码管显示内容
+  25   2          SMG_Write_Buffer[5]=16; //第6位数码管显示内容
+  26   2          SMG_Write_Buffer[6]=WS2812_Write_Buffer[3]/16;  //第7位数码管显示内容
+  27   2          SMG_Write_Buffer[7]=WS2812_Write_Buffer[3]%16;  //第8位数码管显示内容
+  28   2        }
+  29   1        SMG_Display_Ser();        //执行数码管显示函数
+  30   1      }
+  31          //****************************************************************************
+  32          // 根据状态机状态，分频数据给WS2812的缓存数组。并执行WS2812的数据发送
+  33          //****************************************************************************
+  34          void WS2812_Allot()
+  35          {
+  36   1        static u8 xdata blue_pwm,red_pwm,green_pwm,change_mode=0;
+  37   1        static u16 i=0,count=0;
+  38   1        if(count>80)        //count是速度控制。
+  39   1        {
+  40   2          count=0;
+  41   2          switch(change_mode)
+  42   2          {
+  43   3            case 0: red_pwm++;        //红灯渐渐亮起
+  44   3                green_pwm=0;
+  45   3                blue_pwm=0;
+  46   3                if(red_pwm==255)    
+  47   3                {
+  48   4                  change_mode=1;    //红灯最亮了，进入1
+  49   4                }
+  50   3                break;
+  51   3            case 1: red_pwm--;        //红灯渐渐灭掉
+  52   3                green_pwm=0;
+  53   3                blue_pwm=0;
+  54   3                if(red_pwm==0)
+C51 COMPILER V9.60.0.0   STC89C52RC                                                        02/18/2022 16:46:52 PAGE 2   
+
+  55   3                {
+  56   4                  change_mode=2;    //红灯黑了，进入2 
+  57   4                }
+  58   3                break;
+  59   3            case 2: red_pwm=0;        
+  60   3                green_pwm++;      //绿灯渐渐亮起
+  61   3                blue_pwm=0;
+  62   3                if(green_pwm==255)
+  63   3                {
+  64   4                  change_mode=3;    //绿灯最亮了，进入3
+  65   4                }
+  66   3                break;
+  67   3            case 3: red_pwm=0;
+  68   3                green_pwm--;      //绿灯渐渐灭掉
+  69   3                blue_pwm=0;
+  70   3                if(green_pwm==0)
+  71   3                {
+  72   4                  change_mode=4;    //绿灯黑了，进入4
+  73   4                }
+  74   3                break;  
+  75   3            case 4: red_pwm=0;
+  76   3                green_pwm=0;
+  77   3                blue_pwm++;       //蓝灯渐渐亮起
+  78   3                if(blue_pwm==255)
+  79   3                {
+  80   4                  change_mode=5;    //蓝灯最亮了，进入5
+  81   4                }
+  82   3                break;
+  83   3            case 5: red_pwm=0;
+  84   3                green_pwm=0;
+  85   3                blue_pwm--;       //蓝灯渐渐灭掉
+  86   3                if(blue_pwm==0)
+  87   3                {
+  88   4                  change_mode=0;    //蓝灯黑了，返回到0
+  89   4                }
+  90   3                break;                  
+  91   3          }
+  92   2        }
+  93   1        count++;
+  94   1        i=i%24; 
+  95   1        WS2812_Write_Buffer[i+1]=red_pwm;
+  96   1        WS2812_Write_Buffer[i+2]=green_pwm; 
+  97   1        WS2812_Write_Buffer[i+3]=blue_pwm;
+  98   1        i+=3;
+  99   1        WS2812_Display_Ser();
+ 100   1      }
+ 101          void main()             //主函数
+ 102          {
+ 103   1        //HC595_Init();         //初始化74HC595管脚
+ 104   1        while(1)            //主函数大循环
+ 105   1        {
+ 106   2          //SMG_Allot();        //循环调用数码管数据分配函数
+ 107   2          WS2812_Allot();
+ 108   2        }
+ 109   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    602    ----
+   CONSTANT SIZE    =     26    ----
+   XDATA SIZE       =     15    ----
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V9.60.0.0   STC89C52RC                                                        02/18/2022 16:46:52 PAGE 3   
+
+   DATA SIZE        =     33       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

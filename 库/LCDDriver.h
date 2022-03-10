@@ -4,7 +4,7 @@
 #include <reg52.h>
 #include <intrins.h>
 
-#define LCD_12864 1   //用12864屏这里改 1  1602则改 0
+#define LCD_12864 1
 
 #define uchar unsigned char
 #define LCD_DB P0

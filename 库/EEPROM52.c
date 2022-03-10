@@ -1,4 +1,17 @@
 #include <EEPROM52.h>
+/************************************/
+/*===================*/
+/*| 一号扇区 | 0x000 |*/
+/*| 二号扇区 | 0x200 |*/
+/*| 三号扇区 | 0x400 |*/
+/*| 四号扇区 | 0x600 |*/
+/*| 五号扇区 | 0x800 |*/
+/*| 六号扇区 | 0xA00 |*/
+/*| 七号扇区 | 0xC00 |*/
+/*| 八号扇区 | 0xD00 |*/
+/*===================*/
+/************************************/   
+
 
 void LongToStr(unsigned int num,unsigned char *str)
 {
@@ -16,7 +29,7 @@ void LongToStr(unsigned int num,unsigned char *str)
 	}
 	*str = '\0';
 }
-
+// 恢复默认配置
 void IAPIdle(void)
 {
 	IAP_CONTR = 0;
@@ -27,10 +40,10 @@ void IAPIdle(void)
 	IAP_DATA = 0;
 }
 
-
+// 擦除目标扇区数据
 void eeprom_eares(unsigned int addrs)
 {
-	IAP_ADDRL = addrs;
+	IAP_ADDRL = addrs & 0X0FF;
 	IAP_ADDRH = (addrs >> 8);
 	IAP_CONTR = 0x03;
 	IAP_CONTR |= 0x80;
@@ -40,11 +53,11 @@ void eeprom_eares(unsigned int addrs)
 	_nop_();
 	IAPIdle();
 }
-
+//读取目标扇区数据
 unsigned char eeprom_read(unsigned int addrs)
 {
 	unsigned char dat;
-	IAP_ADDRL = addrs;
+	IAP_ADDRL = addrs & 0X0FF;
 	IAP_ADDRH = (addrs >> 8);
 	IAP_CONTR = 0x03;
 	IAP_CONTR |= 0x80;
@@ -56,12 +69,12 @@ unsigned char eeprom_read(unsigned int addrs)
 	IAPIdle();
 	return dat;
 }
-
+//写入数据至目标扇区
 void eeprom_write(unsigned int addrs,unsigned char dat)
 {
 	eeprom_eares(addrs);
 	IAP_DATA = dat;
-	IAP_ADDRL = addrs;
+	IAP_ADDRL = addrs & 0X0FF;
 	IAP_ADDRH = addrs >> 8;
 	IAP_CONTR = 0x03;
 	IAP_CONTR |= 0x80;
@@ -72,7 +85,7 @@ void eeprom_write(unsigned int addrs,unsigned char dat)
 	IAPIdle();
 }
 
-void eeprom_init (void)
+/*void eeprom_init (void)
 {
 	unsigned char a;
 	a = eeprom_read(0x200);
@@ -84,4 +97,4 @@ void eeprom_init (void)
 		eeprom_write(0x200,0x01);
 	}
 	
-}
+}*/

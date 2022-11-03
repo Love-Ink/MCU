@@ -1,8 +1,0 @@
-".\Objects\STARTUP.obj",
-".\Objects\main.obj",
-".\Objects\AD52.obj",
-".\Objects\LCDDriver.obj",
-".\Objects\EEPROM52.obj",
-".\Objects\SEGDriver.obj" 
-TO ".\Objects\Demo" 
-PRINT(".\Listings\Demo.m51") RAMSIZE(256) 

@@ -1,5 +1,0 @@
-".\Objects\Key.obj",
-".\Objects\LCD1601.obj",
-".\Objects\main.obj" 
-TO ".\Objects\C4" 
-PRINT(".\Listings\C4.m51") RAMSIZE(256) 
